@@ -72,13 +72,30 @@ export default function HomeScreen() {
         </TouchableOpacity>
         {accountCreated && (
           <ThemedView style={styles.successMessage}>
-            <ThemedText>Login feito com sucesso!</ThemedText>
+            <ThemedText style={styles.successText}>Login feito com sucesso!</ThemedText>
           </ThemedView>
         )}
       </ThemedView>
     </ParallaxScrollView>
   );
 }
+export default function passandonome() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [accountCreated, setAccountCreated] = useState(false);
+  const navigation = useNavigation();
+
+  const handleCreateAccount = () => {
+    console.log('Criando conta:', { name, email, password });
+    setAccountCreated(true);
+    setName('');
+    setEmail('');
+    setPassword('');
+    // Navegando para a próxima tela e passando o nome
+    navigation.navigate('./explore.tsx', { userName: name });
+  };
+
 
 const styles = StyleSheet.create({
   titleContainer: {
@@ -104,6 +121,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    color: 'white', // Cor do texto no input
   },
   createButton: {
     backgroundColor: '#007AFF',
@@ -122,5 +140,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+  },
+  successText: {
+    color: 'black', // Cor do texto na mensagem de sucesso
   },
 });
