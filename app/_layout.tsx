@@ -1,15 +1,13 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,16 +15,45 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+  // xecando se o usuário está autenticado
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
     if (loaded) {
+      // Este efeito pode ser simplificado para esconder.
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // Verificar se o usuário está logado (exemplo)
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('user_token'); // Só pra encher linguiça
+      if (token) {
+        setIsAuthenticated(true);
+      }
+    };
+
+    checkLoginStatus();
+  }, []); // Este useEffect será executado uma vez, quando o componente for montado.
 
   if (!loaded) {
     return null;
   }
 
+  if (!isAuthenticated) {
+    // Se o usuário não estiver colocadinho, redireciona para a tela de login
+    return (
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="Login" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    );
+  }
+
+  // Só libera quando o usuario estiver logado (não faço a menor ideia de como esta fncionado NÂO MECHE )
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>

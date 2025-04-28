@@ -12,20 +12,45 @@ export default function HomeScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [accountCreated, setAccountCreated] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleString());
+  const [tip, setTip] = useState('');
 
   const router = useRouter();
 
+  // Atualiza a hora a cada segundo'
   useEffect(() => {
-    if (isLoggedIn) {
-      router.push({ pathname: '/explore', params: { userName: name } });
-    }
-  }, [isLoggedIn]);
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Exibe uma dica aleatória de produtividade
+  useEffect(() => {
+    const tips = [
+      'Priorize as tarefas mais importantes.',
+      'Faça pausas regulares para manter o foco.',
+      'Use a técnica Pomodoro para produtividade.',
+      'Organize suas tarefas no início do dia.',
+      'Menos lógica, mais ansiedade.',
+    ];
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    setTip(randomTip);
+  }, []);
 
   const handleCreateAccount = () => {
+    if (!name || !email || !password) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
+
     console.log('Conta criada:', { name, email, password });
+
     setAccountCreated(true);
-    setIsLoggedIn(true);
+
+    // Joga para a sengunda tela.
+    router.push({ pathname: '/explore', params: { userName: name } });
+
     setName('');
     setEmail('');
     setPassword('');
@@ -39,7 +64,8 @@ export default function HomeScreen() {
           source={require('@/assets/images/partial-react-logo.png')}
           style={styles.reactLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Gerenciador de tarefas PNCM</ThemedText>
         <HelloWave />
@@ -55,6 +81,14 @@ export default function HomeScreen() {
           🔹 Acompanhe compromissos importantes{'\n'}
           🔹 Tenha uma agenda prática na palma da mão
         </ThemedText>
+      </ThemedView>
+
+      <ThemedView style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+        <ThemedText style={{ fontSize: 14 }}>🕒 {currentTime}</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+        <ThemedText style={{ fontStyle: 'italic' }}>💡 Dica do dia: {tip}</ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.stepContainer}>
@@ -91,7 +125,7 @@ export default function HomeScreen() {
 
         {accountCreated && (
           <ThemedView style={styles.successMessage}>
-            <ThemedText style={styles.successText}>Conta logada com sucesso!</ThemedText>
+            <ThemedText style={styles.successText}>Conta criada com sucesso!</ThemedText>
           </ThemedView>
         )}
       </ThemedView>

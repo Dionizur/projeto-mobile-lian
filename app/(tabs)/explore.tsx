@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-  Modal,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Calendar } from 'react-native-calendars';
 
@@ -17,14 +9,14 @@ export default function ExploreScreen() {
 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [taskInput, setTaskInput] = useState('');
-  const [tasks, setTasks] = useState<{ [date: string]: string[] }>({});
+  const [tasks, setTasks] = useState<{ [date: string]: { task: string, completed: boolean }[] }>({});
   const [modalVisible, setModalVisible] = useState(false);
 
   const addTask = () => {
     if (taskInput.trim() === '') return;
     const updatedTasks = {
       ...tasks,
-      [selectedDate]: [...(tasks[selectedDate] || []), taskInput.trim()],
+      [selectedDate]: [...(tasks[selectedDate] || []), { task: taskInput.trim(), completed: false }],
     };
     setTasks(updatedTasks);
     setTaskInput('');
@@ -35,7 +27,12 @@ export default function ExploreScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Bem-vindo, {userName}!</Text>
+      {/* Perfil do usuário */}
+      <View style={styles.profileBox}>
+        <Text style={styles.profileText}>👤 Perfil do Usuário</Text>
+        <Text style={styles.profileName}>{userName}</Text>
+      </View>
+
       <Text style={styles.subtitle}>Selecione um dia para ver ou adicionar tarefas:</Text>
 
       <Calendar
@@ -58,10 +55,10 @@ export default function ExploreScreen() {
 
       <FlatList
         data={tasksForSelectedDate}
-        keyExtractor={(item, index) => `${item}-${index}`}
+        keyExtractor={(item, index) => `${item.task}-${index}`}
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
-            <Text style={styles.taskText}>• {item}</Text>
+            <Text style={styles.taskText}>• {item.task}</Text>
           </View>
         )}
         ListEmptyComponent={
@@ -107,11 +104,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     padding: 16,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
+  profileBox: {
+    backgroundColor: '#333',
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  profileText: {
+    color: '#aaa',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  profileName: {
     color: 'white',
-    marginBottom: 6,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 16,
