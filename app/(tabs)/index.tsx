@@ -25,7 +25,7 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  // Exibe uma dica aleatória de produtividade
+  // Exibe uma dica aleatória de bosta
   useEffect(() => {
     const tips = [
       'Priorize as tarefas mais importantes.',
@@ -61,7 +61,7 @@ export default function HomeScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/fundo.jpg')}
           style={styles.reactLogo}
         />
       }
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   reactLogo: {
-    height: 178,
+    height: 240,
     width: 290,
     bottom: 0,
     left: 0,

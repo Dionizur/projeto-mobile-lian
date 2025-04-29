@@ -15,12 +15,11 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // xecando se o usuário está autenticado
+  // xereca se o nome ja foi inviado
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     if (loaded) {
-      // Este efeito pode ser simplificado para esconder.
       SplashScreen.hideAsync();
     }
   }, [loaded]);
@@ -35,7 +34,7 @@ export default function RootLayout() {
     };
 
     checkLoginStatus();
-  }, []); // Este useEffect será executado uma vez, quando o componente for montado.
+  }, []); // Não toca aqui pq ta funcionando.
 
   if (!loaded) {
     return null;
@@ -57,7 +56,6 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
