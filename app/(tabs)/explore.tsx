@@ -1,7 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Calendar } from 'react-native-calendars';
+
+export const options = {
+  headerShown: false,
+};
+
+type Task = {
+  task: string;
+  completed: boolean;
+};
 
 export default function ExploreScreen() {
   const { userName } = useLocalSearchParams();
@@ -9,16 +29,18 @@ export default function ExploreScreen() {
 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [taskInput, setTaskInput] = useState('');
-  const [tasks, setTasks] = useState<{ [date: string]: { task: string, completed: boolean }[] }>({});
+  const [tasks, setTasks] = useState<{ [date: string]: Task[] }>({});
   const [modalVisible, setModalVisible] = useState(false);
 
   const addTask = () => {
     if (taskInput.trim() === '') return;
-    const updatedTasks = {
-      ...tasks,
-      [selectedDate]: [...(tasks[selectedDate] || []), { task: taskInput.trim(), completed: false }],
-    };
-    setTasks(updatedTasks);
+
+    const newTask = { task: taskInput.trim(), completed: false };
+    setTasks((prev) => ({
+      ...prev,
+      [selectedDate]: [...(prev[selectedDate] || []), newTask],
+    }));
+
     setTaskInput('');
     setModalVisible(false);
   };
@@ -26,56 +48,66 @@ export default function ExploreScreen() {
   const tasksForSelectedDate = tasks[selectedDate] || [];
 
   return (
-    <View style={styles.container}>
-      {/* Perfil do usuário */}
-      <View style={styles.profileBox}>
-        <Text style={styles.profileText}>👤 Perfil do Usuário</Text>
-        <Text style={styles.profileName}>{userName}</Text>
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        <View style={styles.profileBox}>
+          <Text style={styles.profileText}>👤 Perfil do Usuário</Text>
+          <Text style={styles.profileName}>{userName}</Text>
+        </View>
 
-      <Text style={styles.subtitle}>Selecione um dia para ver ou adicionar tarefas:</Text>
+        <Text style={styles.subtitle}>Selecione um dia para ver ou adicionar tarefas:</Text>
 
-      <Calendar
-        onDayPress={(day: { dateString: React.SetStateAction<string>; }) => setSelectedDate(day.dateString)}
-        markedDates={{
-          [selectedDate]: {
-            selected: true,
-            selectedColor: '#007AFF',
-          },
-        }}
-        theme={{
-          calendarBackground: '#222',
-          dayTextColor: '#fff',
-          monthTextColor: '#fff',
-          arrowColor: '#fff',
-        }}
-      />
+        <Calendar
+          onDayPress={(day: { dateString: React.SetStateAction<string>; }) => setSelectedDate(day.dateString)}
+          markedDates={{
+            [selectedDate]: {
+              selected: true,
+              selectedColor: '#007AFF',
+            },
+          }}
+          theme={{
+            calendarBackground: '#222',
+            dayTextColor: '#fff',
+            monthTextColor: '#fff',
+            arrowColor: '#fff',
+          }}
+        />
 
-      <Text style={styles.sectionTitle}>Tarefas de {selectedDate}:</Text>
+        <Text style={styles.sectionTitle}>Tarefas de {selectedDate}:</Text>
 
-      <FlatList
-        data={tasksForSelectedDate}
-        keyExtractor={(item, index) => `${item.task}-${index}`}
-        renderItem={({ item }) => (
-          <View style={styles.taskItem}>
-            <Text style={styles.taskText}>• {item.task}</Text>
-          </View>
-        )}
-        ListEmptyComponent={
+        {tasksForSelectedDate.length === 0 ? (
           <Text style={styles.emptyText}>Nenhuma tarefa para este dia.</Text>
-        }
-      />
+        ) : (
+          <FlatList
+            data={tasksForSelectedDate}
+            keyExtractor={(item, index) => `${item.task}-${index}`}
+            renderItem={({ item }) => (
+              <View style={styles.taskItem}>
+                <Text style={styles.taskText}>• {item.task}</Text>
+              </View>
+            )}
+            scrollEnabled={false}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          />
+        )}
 
-      <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
-        <Text style={styles.buttonText}>Adicionar tarefa</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text style={styles.buttonText}>Adicionar tarefa</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.buttonText}>Voltar</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.buttonText}>Voltar</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalContainer}
+        >
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Nova tarefa para {selectedDate}</Text>
             <TextInput
@@ -92,9 +124,9 @@ export default function ExploreScreen() {
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -102,7 +134,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#222',
+  },
+  scrollContainer: {
     padding: 16,
+    paddingBottom: 100,
   },
   profileBox: {
     backgroundColor: '#333',

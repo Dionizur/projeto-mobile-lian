@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   reactLogo: {
-    height: 240,
-    width: 290,
+    height: 250,
+    width: 380,
     bottom: 0,
     left: 0,
     position: 'absolute',
